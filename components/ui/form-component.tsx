@@ -725,6 +725,11 @@ const GroupSelector = ({ selectedGroup, onGroupSelect, status, onExpandChange }:
     );
 };
 
+// دالة للتحقق مما إذا كان النموذج المحدد هو نموذج OpenRouter
+const isOpenRouterModel = (model: string) => {
+    return model === 'scira-openchat' || model === 'scira-toppy';
+};
+
 const FormComponent: React.FC<FormComponentProps> = ({
     input,
     setInput,
@@ -771,6 +776,16 @@ const FormComponent: React.FC<FormComponentProps> = ({
         notificationType: 'model',
         visibilityTimeout: undefined
     });
+
+    // إضافة حالة لتتبع محاولات استخدام نموذج OpenRouter
+    const [openRouterFailCount, setOpenRouterFailCount] = useState(0);
+    
+    // إعادة تعيين عداد الفشل عند تغيير النموذج
+    useEffect(() => {
+        if (!isOpenRouterModel(selectedModel)) {
+            setOpenRouterFailCount(0);
+        }
+    }, [selectedModel]);
 
     const showSwitchNotification = (title: string, description: string, icon?: React.ReactNode, color?: string, type: 'model' | 'group' = 'model') => {
         // Clear any existing timeout to prevent conflicts
@@ -1094,10 +1109,17 @@ const FormComponent: React.FC<FormComponentProps> = ({
             return;
         }
 
-        // إضافة فحص لنماذج OpenRouter عندما تكون محددة ولكن غير مهيأة
-        if ((selectedModel === 'scira-openchat' || selectedModel === 'scira-toppy')) {
+        // التحقق من عدد مرات فشل OpenRouter - إذا وصل إلى 2، انتقل تلقائيًا إلى النموذج الافتراضي
+        if (isOpenRouterModel(selectedModel) && openRouterFailCount >= 2) {
+            toast.info("تم تغيير النموذج تلقائيًا إلى ذكي 2.0 بعد محاولات فاشلة متكررة مع OpenRouter");
+            setSelectedModel('scira-default');
+            // استمر في المحاولة باستخدام النموذج الجديد
+        }
+
+        // إضافة فحص لنماذج OpenRouter عندما تكون محددة
+        if (isOpenRouterModel(selectedModel)) {
             // سيتم محاولة إرسال الطلب ومعالجة الخطأ في API إذا كان هناك مشكلة
-            toast.info("جاري استخدام نموذج OpenRouter. في حال واجهت أي خطأ، يرجى التأكد من وجود مفتاح API في إعدادات المشروع.");
+            toast.info("جاري استخدام نموذج OpenRouter. قد يستغرق الأمر وقتًا أطول. إذا واجهت مشكلة، سيتم التبديل تلقائيًا إلى النموذج الافتراضي.");
         }
 
         if (input.trim() || attachments.length > 0) {
@@ -1112,14 +1134,27 @@ const FormComponent: React.FC<FormComponentProps> = ({
                     let errorMessage = "حدث خطأ أثناء معالجة طلبك";
                     
                     // التحقق من نوع الخطأ لعرض رسالة مناسبة
-                    if (error.message && error.message.includes("OpenRouter")) {
-                        errorMessage = "حدث خطأ أثناء الاتصال بخدمة OpenRouter. يرجى التأكد من وجود مفتاح API الصحيح في إعدادات المشروع.";
-                        // التبديل تلقائياً إلى نموذج ذكي 2.0 عند فشل OpenRouter
+                    if (error.message && (error.message.includes("OpenRouter") || isOpenRouterModel(selectedModel))) {
+                        errorMessage = "حدث خطأ أثناء الاتصال بخدمة OpenRouter. جاري التبديل إلى النموذج الافتراضي.";
+                        
+                        // زيادة عداد الفشل لـ OpenRouter
+                        if (isOpenRouterModel(selectedModel)) {
+                            setOpenRouterFailCount(prev => prev + 1);
+                        }
+
+                        // التبديل تلقائيًا إلى نموذج ذكي 2.0 بعد فشل OpenRouter
                         setSelectedModel('scira-default');
-                        toast.info("تم التحويل إلى نموذج ذكي 2.0");
+
+                        // محاولة إعادة إرسال الطلب تلقائيًا باستخدام نموذج ذكي بعد ثانية واحدة
+                        setTimeout(() => {
+                            if (input.trim() || attachments.length > 0) {
+                                toast.info("جاري إعادة المحاولة باستخدام نموذج ذكي 2.0");
+                                handleSubmit(event, { experimental_attachments: attachments });
+                            }
+                        }, 1000);
+                    } else {
+                        toast.error(errorMessage);
                     }
-                    
-                    toast.error(errorMessage);
                 }
             });
 
@@ -1130,7 +1165,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
         } else {
             toast.error("الرجاء إدخال استعلام بحث أو إرفاق صورة.");
         }
-    }, [input, attachments, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef, status, selectedModel, setSelectedModel]);
+    }, [input, attachments, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef, status, selectedModel, setSelectedModel, openRouterFailCount]);
 
     const submitForm = useCallback(() => {
         onSubmit({ preventDefault: () => { }, stopPropagation: () => { } } as React.FormEvent<HTMLFormElement>);
