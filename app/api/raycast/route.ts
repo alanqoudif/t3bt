@@ -1,36 +1,20 @@
 import { serverEnv } from '@/env/server';
 import { xai } from '@ai-sdk/xai';
-import { openrouter } from '@openrouter/ai-sdk-provider';
 import { tavily } from '@tavily/core';
 import {
     convertToCoreMessages,
     tool,
     customProvider,
-    generateText,
-    LanguageModelV1
+    generateText
 } from 'ai';
 import Exa from 'exa-js';
 import { z } from 'zod';
 
-// تحديد النماذج المتاحة بناءً على متغيرات البيئة المتوفرة
-const availableModels: Record<string, LanguageModelV1> = {
-    'scira-default': xai('grok-2-1212'),
-};
-
-// إضافة نماذج OpenRouter فقط إذا كان المفتاح متوفر
-if (serverEnv.OPENROUTER_API_KEY) {
-    try {
-        // استخدام التعريف الصحيح للمعلمات مع مكتبة OpenRouter
-        availableModels['scira-openchat'] = openrouter('openrouter/openchat/openchat-3.5');
-        availableModels['scira-toppy'] = openrouter('openrouter/undi95/toppy-m-7b');
-    } catch (error) {
-        console.error("Error initializing OpenRouter models:", error);
-    }
-}
-
 const scira = customProvider({
-    languageModels: availableModels
-});
+    languageModels: {
+        'scira-default': xai('grok-2-1212'),
+    }
+})
 
 export const maxDuration = 300;
 
@@ -121,20 +105,7 @@ Remember, you are designed to be efficient and helpful in the Raycast environmen
 export async function POST(req: Request) {
     const { messages, model, group = 'web' } = await req.json();
 
-    // التحقق من صلاحية النموذج المختار
-    let selectedModel = model;
-    if ((selectedModel === 'scira-openchat' || selectedModel === 'scira-toppy') && !serverEnv.OPENROUTER_API_KEY) {
-        console.warn(`Model ${selectedModel} requested but OPENROUTER_API_KEY is not set. Falling back to scira-default.`);
-        selectedModel = 'scira-default';
-    }
-
-    // التأكد من وجود النموذج المطلوب في القائمة
-    if (!availableModels[selectedModel]) {
-        console.warn(`Model ${selectedModel} is not available. Falling back to scira-default.`);
-        selectedModel = 'scira-default';
-    }
-
-    console.log("Running with model: ", selectedModel);
+    console.log("Running with model: ", model.trim());
     console.log("Group: ", group);
 
     // Get the appropriate system prompt based on the group
@@ -144,7 +115,7 @@ export async function POST(req: Request) {
     const activeTools = group === 'x' ? ["x_search" as const] : group === 'web' ? ["web_search" as const] : ["web_search" as const, "x_search" as const];
 
     const { text, steps } = await generateText({
-        model: scira.languageModel(selectedModel),
+        model: scira.languageModel(model),
         system: systemPrompt,
         maxSteps: 5,
         messages: convertToCoreMessages(messages),

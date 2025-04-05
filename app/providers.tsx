@@ -9,7 +9,7 @@ import { ReactNode } from "react";
 if (typeof window !== 'undefined') {
   posthog.init(clientEnv.NEXT_PUBLIC_POSTHOG_KEY!, {
     api_host: clientEnv.NEXT_PUBLIC_POSTHOG_HOST,
-    person_profiles: 'always',
+    person_profiles: 'identified_only',
   })
 }
 
