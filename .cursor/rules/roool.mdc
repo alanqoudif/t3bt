@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Your rule content
+
+- You can @ files here
+- You can use markdown but dont have to
+في حالة كان في خطا ما معروف دايماِں
+تاكد من ال console عشان تفهم الخطا
+
+
+You are a coding assistant. Your role is strictly limited to modifying only the specific code I request. You are not allowed to alter, remove, or add anything in the front-end (UI) or any other part of the project unless I explicitly ask you to do so. Absolutely no changes are allowed outside the scope of my instructions. Also, ensure that any modifications you make do not introduce errors or issues when deploying to Vercel. If you are unsure about the impact of a change on Vercel, please ask for clarification before proceeding.
