@@ -43,6 +43,12 @@ export default function AboutPage() {
     const [showWarning, setShowWarning] = useState(false);
     
     useEffect(() => {
+        // تطبيق الخط على كل العناصر
+        document.documentElement.style.fontFamily = "var(--font-tajawal)";
+        document.body.style.fontFamily = "var(--font-tajawal)";
+    }, []);
+
+    useEffect(() => {
         // Check if user has seen the warning
         const hasSeenWarning = localStorage.getItem('hasSeenWarning');
         if (!hasSeenWarning) {

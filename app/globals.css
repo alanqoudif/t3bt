@@ -4,16 +4,21 @@
 
 @layer base {
   html, body {
-    font-family: var(--font-tajawal);
+    font-family: var(--font-tajawal) !important;
   }
   
   * {
-    font-family: var(--font-tajawal);
+    font-family: var(--font-tajawal) !important;
   }
   
   .font-tajawal {
     font-family: var(--font-tajawal) !important;
   }
+}
+
+/* إضافة محدد عام للتأكد من تطبيق الخط على جميع العناصر */
+html *, body * {
+  font-family: var(--font-tajawal) !important;
 }
 
 .markdown-body .katex {
