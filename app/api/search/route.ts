@@ -39,6 +39,7 @@ const scira = customProvider({
         'openrouter/mistralai/mixtral-8x7b-instruct': openRouter.languageModel('mistralai/mixtral-8x7b-instruct'),
         'openrouter/meta-llama/llama-3-8b-instruct': openRouter.languageModel('meta-llama/llama-3-8b-instruct'),
         'mistralai/mistral-7b-instruct:free': openRouter.languageModel('mistralai/mistral-7b-instruct:free'),
+        'nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free': openRouter.languageModel('nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free'),
     }
 })
 

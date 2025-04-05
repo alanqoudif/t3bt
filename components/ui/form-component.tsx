@@ -89,10 +89,12 @@ const OpenRouterIcon = ({ className }: { className?: string }) => (
 const models = [
     { value: "scira-default", label: "ذكي 2.0", icon: "/dhaki_logo-removebg-preview.png", iconClass: "!text-neutral-300", description: "نموذج ذكي 2.0", color: "glossyblack", vision: false, experimental: false, category: "مستقر" },
     // OpenRouter models
-    { value: "openrouter/anthropic/claude-3-haiku", label: "Claude Haiku", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Claude Haiku من Anthropic", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
-    { value: "openrouter/mistralai/mixtral-8x7b-instruct", label: "Mixtral 8x7b", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mixtral 8x7B من Mistral AI", color: "steel", vision: false, experimental: false, category: "OpenRouter" },
-    { value: "openrouter/meta-llama/llama-3-8b-instruct", label: "Llama 3 8B", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Llama 3 (8B) من Meta", color: "purple", vision: false, experimental: false, category: "OpenRouter" },
-    { value: "mistralai/mistral-7b-instruct:free", label: "Mistral 7B (مجاني)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mistral 7B المجاني", color: "orange", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "openrouter/anthropic/claude-3-haiku", label: "Claude Haiku (مدفوع)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Claude Haiku من Anthropic", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "openrouter/mistralai/mixtral-8x7b-instruct", label: "Mixtral 8x7b (مدفوع)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mixtral 8x7B من Mistral AI", color: "steel", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "openrouter/meta-llama/llama-3-8b-instruct", label: "Llama 3 8B (مدفوع)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Llama 3 8B من Meta", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "mistralai/mistral-7b-instruct:free", label: "Mistral 7B (مجاني)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mistral 7B مجاني من Mistral AI", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free", label: "Nous Hermes (مجاني)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Nous Hermes مجاني من Nous Research", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
+    // ... existing models...
 ];
 
 const getColorClasses = (color: string, isSelected: boolean = false) => {

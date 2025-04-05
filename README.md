@@ -165,6 +165,7 @@ Scira now includes integration with [OpenRouter](https://openrouter.ai), allowin
 
 The following models are available for free through OpenRouter:
 - [Mistral 7B Instruct](https://openrouter.ai/docs/models/mistralai/mistral-7b-instruct)
+- [Nous Hermes 2 Mixtral 8x7B DPO](https://openrouter.ai/docs/models/nousresearch/nous-hermes-2-mixtral-8x7b-dpo)
 
 ### Using OpenRouter
 

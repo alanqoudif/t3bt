@@ -27,25 +27,31 @@ export default function OpenRouterTest() {
           variant={selectedModel === 'openrouter/anthropic/claude-3-haiku' ? 'default' : 'outline'}
           onClick={() => setSelectedModel('openrouter/anthropic/claude-3-haiku')}
         >
-          Claude Haiku
+          Claude Haiku (مدفوع)
         </Button>
         <Button 
           variant={selectedModel === 'openrouter/mistralai/mixtral-8x7b-instruct' ? 'default' : 'outline'}
           onClick={() => setSelectedModel('openrouter/mistralai/mixtral-8x7b-instruct')}
         >
-          Mixtral 8x7b
+          Mixtral 8x7b (مدفوع)
         </Button>
         <Button 
           variant={selectedModel === 'openrouter/meta-llama/llama-3-8b-instruct' ? 'default' : 'outline'}
           onClick={() => setSelectedModel('openrouter/meta-llama/llama-3-8b-instruct')}
         >
-          Llama 3 8B
+          Llama 3 8B (مدفوع)
         </Button>
         <Button 
           variant={selectedModel === 'mistralai/mistral-7b-instruct:free' ? 'default' : 'outline'}
           onClick={() => setSelectedModel('mistralai/mistral-7b-instruct:free')}
         >
           Mistral 7B (مجاني)
+        </Button>
+        <Button 
+          variant={selectedModel === 'nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free' ? 'default' : 'outline'}
+          onClick={() => setSelectedModel('nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free')}
+        >
+          Nous Hermes (مجاني)
         </Button>
       </div>
       
