@@ -11,13 +11,17 @@ import { Providers } from './providers';
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://scira.ai"),
-  title: "Scira AI",
-  description: "Scira AI is a minimalistic AI-powered search engine that helps you find information on the internet.",
+  title: "ذكي",
+  description: "ذكي - محرك بحث ذكي مدعوم بالذكاء الاصطناعي يساعدك على إيجاد المعلومات على الإنترنت.",
   openGraph: {
     url: "https://scira.ai",
-    siteName: "Scira AI",
+    siteName: "ذكي",
   },
   keywords: [
+    "ذكي",
+    "dhaki",
+    "محرك بحث ذكي",
+    "بحث ذكي",
     "scira.ai",
     "scira ai",
     "Scira AI",
