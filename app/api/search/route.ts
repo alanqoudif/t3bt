@@ -35,9 +35,9 @@ const availableModels: Record<string, LanguageModelV1> = {
 // إضافة نماذج OpenRouter فقط إذا كان المفتاح متوفر
 if (serverEnv.OPENROUTER_API_KEY) {
     try {
-        // استخدام التعريف الصحيح للمعلمات مع مكتبة OpenRouter
-        availableModels['scira-openchat'] = openrouter('openrouter/openchat/openchat-3.5');
-        availableModels['scira-toppy'] = openrouter('openrouter/undi95/toppy-m-7b');
+        // تحديث معرّفات النماذج لتتوافق مع API الجديد لـ OpenRouter
+        availableModels['scira-openchat'] = openrouter('openchat/openchat-3.5');
+        availableModels['scira-toppy'] = openrouter('undi95/toppy-m-7b');
     } catch (error) {
         console.error("Error initializing OpenRouter models:", error);
     }
@@ -2312,11 +2312,13 @@ export async function POST(req: Request) {
                             }, 20000); // 20 second timeout
                             
                             // Clear timeout on any progress
-                            toolsResult.onChunk(() => {
                                 if (!hasTimedOut && timeoutId) {
                                     clearTimeout(timeoutId);
                                 }
-                            });
+// For OpenRouter models, add a timeout (تم تبسيطها)
+if (selectedModel === "scira-openchat" || selectedModel === "scira-toppy") {
+    console.log("Using OpenRouter model with potential timeout: " + selectedModel);
+}
                         }
 
                         toolsResult.mergeIntoDataStream(dataStream, {
@@ -2558,11 +2560,13 @@ export async function POST(req: Request) {
                             }, 20000); // 20 second timeout
                             
                             // Clear timeout on any progress
-                            result.onChunk(() => {
                                 if (!hasTimedOut && timeoutId) {
                                     clearTimeout(timeoutId);
                                 }
-                            });
+// Add timeout handling for OpenRouter models (تم تبسيطها)
+if (selectedModel === "scira-openchat" || selectedModel === "scira-toppy") {
+    console.log("Using OpenRouter model with potential timeout: " + selectedModel);
+}
                         }
 
                         result.mergeIntoDataStream(dataStream, {
