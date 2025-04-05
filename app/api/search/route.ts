@@ -34,12 +34,13 @@ const availableModels: Record<string, LanguageModelV1> = {
 
 // إضافة نماذج OpenRouter فقط إذا كان المفتاح متوفر
 if (serverEnv.OPENROUTER_API_KEY) {
-    availableModels['scira-openchat'] = openrouter('openrouter/openchat/openchat-3.5', {
-        apiKey: serverEnv.OPENROUTER_API_KEY as string,
-    });
-    availableModels['scira-toppy'] = openrouter('openrouter/undi95/toppy-m-7b', {
-        apiKey: serverEnv.OPENROUTER_API_KEY as string,
-    });
+    try {
+        // استخدام التعريف الصحيح للمعلمات مع مكتبة OpenRouter
+        availableModels['scira-openchat'] = openrouter('openrouter/openchat/openchat-3.5');
+        availableModels['scira-toppy'] = openrouter('openrouter/undi95/toppy-m-7b');
+    } catch (error) {
+        console.error("Error initializing OpenRouter models:", error);
+    }
 }
 
 const scira = customProvider({

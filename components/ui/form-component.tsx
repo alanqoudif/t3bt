@@ -787,6 +787,44 @@ const FormComponent: React.FC<FormComponentProps> = ({
         }
     }, [selectedModel]);
 
+    // إضافة مؤقت للتبديل التلقائي بعد فترة انتظار محددة
+    const [switchModelTimer, setSwitchModelTimer] = useState<NodeJS.Timeout | null>(null);
+
+    // دالة لتبديل النموذج بعد فترة انتظار
+    const autoSwitchAfterDelay = useCallback((message: string) => {
+        if (switchModelTimer) {
+            clearTimeout(switchModelTimer);
+        }
+        
+        // عرض رسالة إعلامية حول الانتظار
+        toast.info(message);
+        
+        // تبديل النموذج بعد 10 ثوانٍ إذا لم يتم تلقي استجابة
+        const timer = setTimeout(() => {
+            if (isOpenRouterModel(selectedModel)) {
+                toast.info("تجاوز وقت الانتظار. تم التبديل إلى نموذج ذكي 2.0");
+                setOpenRouterFailCount(prev => prev + 1);
+                setSelectedModel('scira-default');
+                
+                // إعادة إرسال الطلب تلقائيًا باستخدام النموذج الجديد
+                if (input.trim() || attachments.length > 0) {
+                    handleSubmit(undefined, { experimental_attachments: attachments });
+                }
+            }
+        }, 10000); // 10 ثوانٍ
+        
+        setSwitchModelTimer(timer);
+    }, [switchModelTimer, selectedModel, setSelectedModel, input, attachments, handleSubmit]);
+
+    // تأكد من تنظيف المؤقت عند إلغاء تحميل المكون
+    useEffect(() => {
+        return () => {
+            if (switchModelTimer) {
+                clearTimeout(switchModelTimer);
+            }
+        };
+    }, [switchModelTimer]);
+
     const showSwitchNotification = (title: string, description: string, icon?: React.ReactNode, color?: string, type: 'model' | 'group' = 'model') => {
         // Clear any existing timeout to prevent conflicts
         if (switchNotification.visibilityTimeout) {
@@ -1118,8 +1156,8 @@ const FormComponent: React.FC<FormComponentProps> = ({
 
         // إضافة فحص لنماذج OpenRouter عندما تكون محددة
         if (isOpenRouterModel(selectedModel)) {
-            // سيتم محاولة إرسال الطلب ومعالجة الخطأ في API إذا كان هناك مشكلة
-            toast.info("جاري استخدام نموذج OpenRouter. قد يستغرق الأمر وقتًا أطول. إذا واجهت مشكلة، سيتم التبديل تلقائيًا إلى النموذج الافتراضي.");
+            // إعداد مؤقت للتبديل التلقائي إذا استغرق الطلب وقتًا طويلاً
+            autoSwitchAfterDelay("جاري استخدام نموذج OpenRouter. إذا استغرق الأمر وقتًا طويلاً، سيتم التبديل تلقائيًا إلى النموذج الافتراضي.");
         }
 
         if (input.trim() || attachments.length > 0) {
@@ -1128,7 +1166,20 @@ const FormComponent: React.FC<FormComponentProps> = ({
 
             handleSubmit(event, {
                 experimental_attachments: attachments,
+                onSuccess: () => {
+                    // إيقاف المؤقت عند نجاح العملية
+                    if (switchModelTimer) {
+                        clearTimeout(switchModelTimer);
+                        setSwitchModelTimer(null);
+                    }
+                },
                 onError: (error) => {
+                    // إيقاف المؤقت عند حدوث خطأ
+                    if (switchModelTimer) {
+                        clearTimeout(switchModelTimer);
+                        setSwitchModelTimer(null);
+                    }
+                    
                     // إضافة معالجة الخطأ للطلبات الفاشلة
                     console.error("Error during submission:", error);
                     let errorMessage = "حدث خطأ أثناء معالجة طلبك";
@@ -1165,7 +1216,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
         } else {
             toast.error("الرجاء إدخال استعلام بحث أو إرفاق صورة.");
         }
-    }, [input, attachments, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef, status, selectedModel, setSelectedModel, openRouterFailCount]);
+    }, [input, attachments, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef, status, selectedModel, setSelectedModel, openRouterFailCount, autoSwitchAfterDelay, switchModelTimer]);
 
     const submitForm = useCallback(() => {
         onSubmit({ preventDefault: () => { }, stopPropagation: () => { } } as React.FormEvent<HTMLFormElement>);
