@@ -29,12 +29,15 @@ const scira = customProvider({
         'scira-vision': xai('grok-2-vision-1212'),
         'scira-cmd-a': cohere('command-a-03-2025'),
         'scira-mistral': mistral('mistral-small-latest'),
-        'scira-openchat': openrouter('openrouter/openchat/openchat-3.5', {
-            apiKey: serverEnv.OPENROUTER_API_KEY,
-        }),
-        'scira-toppy': openrouter('openrouter/undi95/toppy-m-7b', {
-            apiKey: serverEnv.OPENROUTER_API_KEY,
-        }),
+        // إضافة فحص لوجود مفتاح OpenRouter
+        ...(serverEnv.OPENROUTER_API_KEY ? {
+            'scira-openchat': openrouter('openrouter/openchat/openchat-3.5', {
+                apiKey: serverEnv.OPENROUTER_API_KEY,
+            }),
+            'scira-toppy': openrouter('openrouter/undi95/toppy-m-7b', {
+                apiKey: serverEnv.OPENROUTER_API_KEY,
+            }),
+        } : {}),
     }
 })
 
@@ -264,9 +267,21 @@ const deduplicateByDomainAndUrl = <T extends { url: string }>(items: T[]): T[] =
 // Modify the POST function to use the new handler
 export async function POST(req: Request) {
     const { messages, model, group, user_id, timezone } = await req.json();
-    const { tools: activeTools, systemPrompt, toolInstructions, responseGuidelines } = await getGroupConfig(group);
 
-    console.log("Running with model: ", model.trim());
+    // التحقق من توفر مفتاح OpenRouter عند استخدام نماذجه
+    if ((model === 'scira-openchat' || model === 'scira-toppy') && !serverEnv.OPENROUTER_API_KEY) {
+        return new Response(
+            JSON.stringify({ 
+                error: 'OpenRouter API key is missing. Please add it to your environment variables.' 
+            }),
+            {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+            }
+        );
+    }
+
+    console.log("Running with model: ", model);
     console.log("Group: ", group);
     console.log("Timezone: ", timezone);
 

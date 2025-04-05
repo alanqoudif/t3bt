@@ -1094,12 +1094,33 @@ const FormComponent: React.FC<FormComponentProps> = ({
             return;
         }
 
+        // إضافة فحص لنماذج OpenRouter عندما تكون محددة ولكن غير مهيأة
+        if ((selectedModel === 'scira-openchat' || selectedModel === 'scira-toppy')) {
+            // سيتم محاولة إرسال الطلب ومعالجة الخطأ في API إذا كان هناك مشكلة
+            toast.info("جاري استخدام نموذج OpenRouter. في حال واجهت أي خطأ، يرجى التأكد من وجود مفتاح API في إعدادات المشروع.");
+        }
+
         if (input.trim() || attachments.length > 0) {
             setHasSubmitted(true);
             lastSubmittedQueryRef.current = input.trim();
 
             handleSubmit(event, {
                 experimental_attachments: attachments,
+                onError: (error) => {
+                    // إضافة معالجة الخطأ للطلبات الفاشلة
+                    console.error("Error during submission:", error);
+                    let errorMessage = "حدث خطأ أثناء معالجة طلبك";
+                    
+                    // التحقق من نوع الخطأ لعرض رسالة مناسبة
+                    if (error.message && error.message.includes("OpenRouter")) {
+                        errorMessage = "حدث خطأ أثناء الاتصال بخدمة OpenRouter. يرجى التأكد من وجود مفتاح API الصحيح في إعدادات المشروع.";
+                        // التبديل تلقائياً إلى نموذج ذكي 2.0 عند فشل OpenRouter
+                        setSelectedModel('scira-default');
+                        toast.info("تم التحويل إلى نموذج ذكي 2.0");
+                    }
+                    
+                    toast.error(errorMessage);
+                }
             });
 
             setAttachments([]);
@@ -1109,7 +1130,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
         } else {
             toast.error("الرجاء إدخال استعلام بحث أو إرفاق صورة.");
         }
-    }, [input, attachments, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef, status]);
+    }, [input, attachments, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef, status, selectedModel, setSelectedModel]);
 
     const submitForm = useCallback(() => {
         onSubmit({ preventDefault: () => { }, stopPropagation: () => { } } as React.FormEvent<HTMLFormElement>);

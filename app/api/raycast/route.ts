@@ -14,12 +14,14 @@ import { z } from 'zod';
 const scira = customProvider({
     languageModels: {
         'scira-default': xai('grok-2-1212'),
-        'scira-openchat': openrouter('openrouter/openchat/openchat-3.5', {
-            apiKey: serverEnv.OPENROUTER_API_KEY,
-        }),
-        'scira-toppy': openrouter('openrouter/undi95/toppy-m-7b', {
-            apiKey: serverEnv.OPENROUTER_API_KEY,
-        }),
+        ...(serverEnv.OPENROUTER_API_KEY ? {
+            'scira-openchat': openrouter('openrouter/openchat/openchat-3.5', {
+                apiKey: serverEnv.OPENROUTER_API_KEY,
+            }),
+            'scira-toppy': openrouter('openrouter/undi95/toppy-m-7b', {
+                apiKey: serverEnv.OPENROUTER_API_KEY,
+            }),
+        } : {}),
     }
 })
 
@@ -111,6 +113,18 @@ Remember, you are designed to be efficient and helpful in the Raycast environmen
 // Modify the POST function to use the new handler
 export async function POST(req: Request) {
     const { messages, model, group = 'web' } = await req.json();
+
+    if ((model === 'scira-openchat' || model === 'scira-toppy') && !serverEnv.OPENROUTER_API_KEY) {
+        return new Response(
+            JSON.stringify({ 
+                error: 'OpenRouter API key is missing. Please add it to your environment variables.' 
+            }),
+            {
+                status: 500,
+                headers: { 'Content-Type': 'application/json' }
+            }
+        );
+    }
 
     console.log("Running with model: ", model.trim());
     console.log("Group: ", group);
