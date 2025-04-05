@@ -799,7 +799,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
         // عرض رسالة إعلامية حول الانتظار
         toast.info(message);
         
-        // تبديل النموذج بعد 10 ثوانٍ إذا لم يتم تلقي استجابة
+        // تبديل النموذج بعد 15 ثوانٍ إذا لم يتم تلقي استجابة (وقت أطول للاتصالات البطيئة)
         const timer = setTimeout(() => {
             if (isOpenRouterModel(selectedModel)) {
                 toast.info("تجاوز وقت الانتظار. تم التبديل إلى نموذج ذكي 2.0");
@@ -808,10 +808,13 @@ const FormComponent: React.FC<FormComponentProps> = ({
                 
                 // إعادة إرسال الطلب تلقائيًا باستخدام النموذج الجديد
                 if (input.trim() || attachments.length > 0) {
-                    handleSubmit(undefined, { experimental_attachments: attachments });
+                    toast.success("جاري إعادة المحاولة باستخدام نموذج ذكي 2.0");
+                    setTimeout(() => {
+                        handleSubmit(undefined, { experimental_attachments: attachments });
+                    }, 1000);
                 }
             }
-        }, 10000); // 10 ثوانٍ
+        }, 15000); // 15 ثانية
         
         setSwitchModelTimer(timer);
     }, [switchModelTimer, selectedModel, setSelectedModel, input, attachments, handleSubmit]);
@@ -824,6 +827,22 @@ const FormComponent: React.FC<FormComponentProps> = ({
             }
         };
     }, [switchModelTimer]);
+
+    // إضافة تنظيف أكثر شمولًا
+    useEffect(() => {
+        // عند التحميل المبدئي
+        isMounted.current = true;
+        
+        // عند إلغاء التحميل
+        return () => {
+            isMounted.current = false;
+            
+            // إلغاء أي مؤقتات عند إلغاء التحميل
+            if (switchModelTimer) {
+                clearTimeout(switchModelTimer);
+            }
+        };
+    }, []);
 
     const showSwitchNotification = (title: string, description: string, icon?: React.ReactNode, color?: string, type: 'model' | 'group' = 'model') => {
         // Clear any existing timeout to prevent conflicts
@@ -1180,30 +1199,55 @@ const FormComponent: React.FC<FormComponentProps> = ({
                         setSwitchModelTimer(null);
                     }
                     
-                    // إضافة معالجة الخطأ للطلبات الفاشلة
+                    // تحسين معالجة الخطأ للتعامل مع undefined
                     console.error("Error during submission:", error);
                     let errorMessage = "حدث خطأ أثناء معالجة طلبك";
                     
-                    // التحقق من نوع الخطأ لعرض رسالة مناسبة
-                    if (error.message && (error.message.includes("OpenRouter") || isOpenRouterModel(selectedModel))) {
-                        errorMessage = "حدث خطأ أثناء الاتصال بخدمة OpenRouter. جاري التبديل إلى النموذج الافتراضي.";
+                    // التحقق من نوع الخطأ والقيم الفارغة
+                    if (error === undefined || error === null) {
+                        errorMessage = "حدث خطأ غير معروف. يتم التبديل إلى النموذج الافتراضي.";
+                    } else if (typeof error === 'object') {
+                        // استخراج رسالة الخطأ من كائنات الخطأ المختلفة
+                        const errorMsg = error.message || error.toString();
                         
-                        // زيادة عداد الفشل لـ OpenRouter
-                        if (isOpenRouterModel(selectedModel)) {
-                            setOpenRouterFailCount(prev => prev + 1);
+                        // التحقق من تجاوز حد الطلبات في OpenRouter
+                        if (errorMsg.includes("rate limit") || errorMsg.includes("too many requests") || 
+                            errorMsg.includes("429") || errorMsg.includes("quota exceeded")) {
+                            errorMessage = "تم تجاوز الحد الأقصى للطلبات لـ OpenRouter. جاري التبديل إلى النموذج الافتراضي.";
                         }
-
+                        // التحقق من مشاكل الاتصال العامة
+                        else if (errorMsg.includes("OpenRouter") || isOpenRouterModel(selectedModel) || 
+                            errorMsg.includes("timeout") || errorMsg.includes("network error")) {
+                            errorMessage = "حدث خطأ أثناء الاتصال بخدمة OpenRouter. جاري التبديل إلى النموذج الافتراضي.";
+                        }
+                    } else if (typeof error === 'string' && 
+                        (error.includes("OpenRouter") || error.includes("timeout") || error.includes("network error") || 
+                        error.includes("rate limit") || error.includes("429") || error.includes("too many requests"))) {
+                        
+                        if (error.includes("rate limit") || error.includes("too many requests") || 
+                            error.includes("429") || error.includes("quota exceeded")) {
+                            errorMessage = "تم تجاوز الحد الأقصى للطلبات لـ OpenRouter. جاري التبديل إلى النموذج الافتراضي.";
+                        } else {
+                            errorMessage = "حدث خطأ أثناء الاتصال بخدمة OpenRouter. جاري التبديل إلى النموذج الافتراضي.";
+                        }
+                    }
+                    
+                    // زيادة عداد الفشل لـ OpenRouter إذا كان الخطأ مرتبط به
+                    if (isOpenRouterModel(selectedModel)) {
+                        setOpenRouterFailCount(prev => prev + 1);
                         // التبديل تلقائيًا إلى نموذج ذكي 2.0 بعد فشل OpenRouter
                         setSelectedModel('scira-default');
+                        toast.info(errorMessage);
 
                         // محاولة إعادة إرسال الطلب تلقائيًا باستخدام نموذج ذكي بعد ثانية واحدة
                         setTimeout(() => {
                             if (input.trim() || attachments.length > 0) {
                                 toast.info("جاري إعادة المحاولة باستخدام نموذج ذكي 2.0");
-                                handleSubmit(event, { experimental_attachments: attachments });
+                                handleSubmit(undefined, { experimental_attachments: attachments });
                             }
                         }, 1000);
                     } else {
+                        // إذا كان الخطأ ليس متعلقًا بـ OpenRouter، عرض رسالة الخطأ العادية
                         toast.error(errorMessage);
                     }
                 }
@@ -1216,7 +1260,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
         } else {
             toast.error("الرجاء إدخال استعلام بحث أو إرفاق صورة.");
         }
-    }, [input, attachments, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef, status, selectedModel, setSelectedModel, openRouterFailCount, autoSwitchAfterDelay, switchModelTimer]);
+    }, [input, attachments, handleSubmit, setAttachments, fileInputRef, lastSubmittedQueryRef, status, selectedModel, setSelectedModel, openRouterFailCount, autoSwitchAfterDelay, switchModelTimer, setHasSubmitted]);
 
     const submitForm = useCallback(() => {
         onSubmit({ preventDefault: () => { }, stopPropagation: () => { } } as React.FormEvent<HTMLFormElement>);
