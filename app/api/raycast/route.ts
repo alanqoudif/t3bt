@@ -1,5 +1,6 @@
 import { serverEnv } from '@/env/server';
 import { xai } from '@ai-sdk/xai';
+import { openrouter } from '@openrouter/ai-sdk-provider';
 import { tavily } from '@tavily/core';
 import {
     convertToCoreMessages,
@@ -13,6 +14,9 @@ import { z } from 'zod';
 const scira = customProvider({
     languageModels: {
         'scira-default': xai('grok-2-1212'),
+        'scira-openrouter': openrouter('openrouter/meta-llama/llama-3-70b-instruct', {
+            apiKey: serverEnv.OPENROUTER_API_KEY,
+        }),
     }
 })
 

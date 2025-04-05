@@ -4,6 +4,7 @@ import { serverEnv } from '@/env/server';
 import { xai } from '@ai-sdk/xai';
 import { cohere } from '@ai-sdk/cohere'
 import { mistral } from "@ai-sdk/mistral";
+import { openrouter } from '@openrouter/ai-sdk-provider';
 import CodeInterpreter from '@e2b/code-interpreter';
 import FirecrawlApp from '@mendable/firecrawl-js';
 import { tavily } from '@tavily/core';
@@ -28,6 +29,9 @@ const scira = customProvider({
         'scira-vision': xai('grok-2-vision-1212'),
         'scira-cmd-a': cohere('command-a-03-2025'),
         'scira-mistral': mistral('mistral-small-latest'),
+        'scira-openrouter': openrouter('openrouter/meta-llama/llama-3-70b-instruct', {
+            apiKey: serverEnv.OPENROUTER_API_KEY,
+        }),
     }
 })
 
