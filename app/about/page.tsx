@@ -428,22 +428,6 @@ export default function AboutPage() {
                         
                         <div className="flex items-center gap-3">
                             <Link
-                                href="https://x.com/sciraai"
-                                className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800 transition-colors"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <XLogo className="h-5 w-5" />
-                            </Link>
-                            <Link
-                                href="https://git.new/scira"
-                                className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800 transition-colors"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Github className="h-5 w-5" />
-                            </Link>
-                            <Link
                                 href="https://www.instagram.com/nuqta_om/"
                                 className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800 transition-colors"
                                 target="_blank"
