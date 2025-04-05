@@ -1,100 +1,119 @@
 import { useEffect, useState } from 'react';
-import Joyride, { CallBackProps, Step, STATUS } from 'react-joyride';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
 
 interface SiteTourProps {
   startTour?: boolean;
 }
 
 const SiteTour = ({ startTour = false }: SiteTourProps) => {
-  const [run, setRun] = useState(false);
-  const [steps, setSteps] = useState<Step[]>([
+  const [isOpen, setIsOpen] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  
+  const steps = [
     {
-      target: '.search-container',
+      title: 'مربع البحث',
       content: 'مرحباً بك في ذكي! هذا هو مربع البحث الذي يمكنك من خلاله طرح أي سؤال أو استعلام',
-      placement: 'bottom',
-      disableBeacon: true,
+      target: '.search-container',
     },
     {
-      target: '.chat-container',
+      title: 'منطقة المحادثة',
       content: 'هنا ستظهر نتائج البحث والمحادثة مع الذكاء الاصطناعي',
-      placement: 'top',
+      target: '.chat-container',
     },
     {
-      target: '.theme-toggle',
+      title: 'تغيير المظهر',
       content: 'يمكنك تغيير الوضع بين الليلي والنهاري من خلال هذا الزر',
-      placement: 'left',
+      target: '.theme-toggle',
     },
     {
-      target: '.about-button',
+      title: 'حول ذكي',
       content: 'اضغط هنا لمعرفة المزيد عن ذكي وميزاته',
-      placement: 'left',
+      target: '.about-button',
     },
     {
-      target: '.search-history',
+      title: 'سجل البحث',
       content: 'ستظهر هنا عمليات البحث السابقة التي أجريتها',
-      placement: 'bottom',
+      target: '.search-history',
     }
-  ]);
+  ];
 
   useEffect(() => {
     // بدء الجولة عند تحميل الصفحة لأول مرة إذا لم يسبق للمستخدم رؤيتها
     const hasSeenTour = localStorage.getItem('hasSeenTour');
     
     if (startTour || !hasSeenTour) {
-      setRun(true);
+      setIsOpen(true);
     }
   }, [startTour]);
 
-  const handleJoyrideCallback = (data: CallBackProps) => {
-    const { status } = data;
-    
-    if ([STATUS.FINISHED, STATUS.SKIPPED].includes(status)) {
-      // تسجيل أن المستخدم قد رأى الجولة
-      localStorage.setItem('hasSeenTour', 'true');
-      setRun(false);
+  const handleNext = () => {
+    if (currentStep < steps.length - 1) {
+      setCurrentStep(currentStep + 1);
+    } else {
+      handleFinish();
     }
   };
 
+  const handlePrevious = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const handleFinish = () => {
+    localStorage.setItem('hasSeenTour', 'true');
+    setIsOpen(false);
+  };
+
+  const handleSkip = () => {
+    localStorage.setItem('hasSeenTour', 'true');
+    setIsOpen(false);
+  };
+
   return (
-    <Joyride
-      callback={handleJoyrideCallback}
-      continuous
-      hideCloseButton
-      run={run}
-      scrollToFirstStep
-      showProgress
-      showSkipButton
-      steps={steps}
-      styles={{
-        options: {
-          zIndex: 10000,
-          primaryColor: '#000',
-          textColor: '#333',
-          backgroundColor: '#fff',
-          arrowColor: '#fff',
-        },
-        buttonNext: {
-          backgroundColor: '#000',
-          color: '#fff',
-        },
-        buttonBack: {
-          color: '#000',
-        },
-        buttonSkip: {
-          color: '#777',
-        },
-        spotlight: {
-          backgroundColor: 'transparent',
-        },
-      }}
-      locale={{
-        back: 'السابق',
-        close: 'إغلاق',
-        last: 'إنهاء',
-        next: 'التالي',
-        skip: 'تخطي',
-      }}
-    />
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className="sm:max-w-md">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">{steps[currentStep].title}</h3>
+          <p>{steps[currentStep].content}</p>
+          
+          <div className="flex justify-between pt-4">
+            <div className="space-x-2 rtl:space-x-reverse">
+              <Button 
+                variant="outline" 
+                onClick={handleSkip}
+                className="ml-2 rtl:mr-2"
+              >
+                تخطي
+              </Button>
+              {currentStep > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={handlePrevious}
+                >
+                  السابق
+                </Button>
+              )}
+            </div>
+            <Button onClick={handleNext}>
+              {currentStep === steps.length - 1 ? 'إنهاء' : 'التالي'}
+            </Button>
+          </div>
+          
+          <div className="flex justify-center space-x-1 rtl:space-x-reverse">
+            {steps.map((_, index) => (
+              <div 
+                key={index} 
+                className={`h-2 w-2 rounded-full ${
+                  index === currentStep ? 'bg-black dark:bg-white' : 'bg-gray-300 dark:bg-gray-600'
+                }`}
+              />
+            ))}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
