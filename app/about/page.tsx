@@ -43,7 +43,7 @@ export default function AboutPage() {
     const [showWarning, setShowWarning] = useState(false);
     
     useEffect(() => {
-        // تطبيق الخط على كل العناصر
+        // تطبيق الخط بصورة برمجية في useEffect
         document.documentElement.style.fontFamily = "var(--font-tajawal)";
         document.body.style.fontFamily = "var(--font-tajawal)";
     }, []);

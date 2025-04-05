@@ -3,6 +3,10 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --font-tajawal-important: var(--font-tajawal);
+  }
+  
   html, body {
     font-family: var(--font-tajawal) !important;
   }
