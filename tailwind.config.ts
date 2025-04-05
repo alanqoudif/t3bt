@@ -26,6 +26,7 @@ const config = {
       fontFamily: {
         sans: ['var(--font-geist-sans)', ...fontFamily.sans],
         syne: ['var(--font-syne)'],
+        tajawal: ['var(--font-tajawal)', ...fontFamily.sans],
         mono: ['var(--font-geist-mono)', ...fontFamily.mono],
       },
       colors: {

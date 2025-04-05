@@ -3,7 +3,7 @@ import { GeistSans } from 'geist/font/sans';
 import 'katex/dist/katex.min.css';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Metadata, Viewport } from "next";
-import { Syne } from 'next/font/google';
+import { Syne, Tajawal } from 'next/font/google';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { Toaster } from "sonner";
 import "./globals.css";
@@ -67,6 +67,14 @@ const syne = Syne({
   display: 'swap',
 });
 
+const tajawal = Tajawal({
+  subsets: ['arabic'],
+  weight: ['400', '500', '700'],
+  variable: '--font-tajawal',
+  preload: true,
+  display: 'swap',
+});
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -74,7 +82,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${GeistSans.variable} ${syne.variable} font-sans antialiased`} suppressHydrationWarning>
+      <body className={`${GeistSans.variable} ${syne.variable} ${tajawal.variable} font-tajawal antialiased`} suppressHydrationWarning>
         <NuqsAdapter>
           <Providers>
             <Toaster position="top-center" />
