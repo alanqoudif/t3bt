@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { GithubLogo, XLogo } from '@phosphor-icons/react';
+import { GithubLogo, XLogo, InstagramLogo } from '@phosphor-icons/react';
 import { Bot, Brain, Command, GraduationCap, Image, Search, Share2, Sparkles, Star, Trophy, Users, AlertTriangle, Github, Twitter } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -335,9 +335,9 @@ export default function AboutPage() {
                                 description: "يمكنه فهم وشرح الصور التي تشاركها" 
                             },
                             { 
-                                icon: Command, 
-                                title: "حسابات ذكية 🧮",
-                                description: "يؤدي عمليات حسابية وتحليلات معقدة في الوقت الحقيقي" 
+                                icon: InstagramLogo, 
+                                title: "حساب انستغرام نقطة 📲",
+                                description: "تابع نقطة على انستغرام @nuqta_om لآخر المستجدات والتحديثات" 
                             },
                             { 
                                 icon: GraduationCap, 
@@ -354,6 +354,12 @@ export default function AboutPage() {
                                 key={i}
                                 className="group relative p-8 rounded-2xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-neutral-300 dark:hover:border-neutral-700 transition-all duration-300"
                                 whileHover={{ y: -4 }}
+                                onClick={() => {
+                                    if (i === 3) {
+                                        window.open('https://www.instagram.com/nuqta_om/', '_blank');
+                                    }
+                                }}
+                                style={{ cursor: i === 3 ? 'pointer' : 'default' }}
                             >
                                 <div className="space-y-4">
                                     <div className="p-2.5 w-fit rounded-xl bg-neutral-100 dark:bg-neutral-800">
@@ -436,6 +442,14 @@ export default function AboutPage() {
                                 rel="noopener noreferrer"
                             >
                                 <Github className="h-5 w-5" />
+                            </Link>
+                            <Link
+                                href="https://www.instagram.com/nuqta_om/"
+                                className="rounded-lg p-2 text-neutral-600 hover:bg-neutral-100 dark:text-neutral-400 dark:hover:bg-neutral-800 transition-colors"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                <InstagramLogo className="h-5 w-5" />
                             </Link>
                         </div>
                     </div>
