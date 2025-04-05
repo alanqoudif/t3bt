@@ -76,7 +76,8 @@ const MistralIcon = ({ className }: { className?: string }) => (
 
 const models = [
     { value: "scira-default", label: "ذكي 2.0", icon: "/dhaki_logo-removebg-preview.png", iconClass: "!text-neutral-300", description: "نموذج ذكي 2.0", color: "glossyblack", vision: false, experimental: false, category: "مستقر" },
-    { value: "scira-openrouter", label: "Llama 3 70B", icon: "/dhaki_logo-removebg-preview.png", iconClass: "!text-neutral-300", description: "نموذج Llama 3 70B من Meta عبر OpenRouter", color: "purple", vision: false, experimental: false, category: "مستقر" },
+    { value: "scira-openchat", label: "OpenChat 3.5", icon: "/dhaki_logo-removebg-preview.png", iconClass: "!text-neutral-300", description: "نموذج OpenChat 3.5 - مجاني من OpenRouter", color: "purple", vision: false, experimental: false, category: "مستقر" },
+    { value: "scira-toppy", label: "Toppy-M-7B", icon: "/dhaki_logo-removebg-preview.png", iconClass: "!text-neutral-300", description: "نموذج Toppy-M-7B - مجاني من OpenRouter", color: "sapphire", vision: false, experimental: false, category: "مستقر" },
 ];
 
 const getColorClasses = (color: string, isSelected: boolean = false) => {

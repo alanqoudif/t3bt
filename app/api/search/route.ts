@@ -29,7 +29,10 @@ const scira = customProvider({
         'scira-vision': xai('grok-2-vision-1212'),
         'scira-cmd-a': cohere('command-a-03-2025'),
         'scira-mistral': mistral('mistral-small-latest'),
-        'scira-openrouter': openrouter('openrouter/meta-llama/llama-3-70b-instruct', {
+        'scira-openchat': openrouter('openrouter/openchat/openchat-3.5', {
+            apiKey: serverEnv.OPENROUTER_API_KEY,
+        }),
+        'scira-toppy': openrouter('openrouter/undi95/toppy-m-7b', {
             apiKey: serverEnv.OPENROUTER_API_KEY,
         }),
     }
