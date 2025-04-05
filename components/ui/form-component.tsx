@@ -88,13 +88,16 @@ const OpenRouterIcon = ({ className }: { className?: string }) => (
 
 const models = [
     { value: "scira-default", label: "ذكي 2.0", icon: "/dhaki_logo-removebg-preview.png", iconClass: "!text-neutral-300", description: "نموذج ذكي 2.0", color: "glossyblack", vision: false, experimental: false, category: "مستقر" },
-    // OpenRouter models
+    // OpenRouter models with clear labeling for free vs paid models
     { value: "openrouter/anthropic/claude-3-haiku", label: "Claude Haiku (مدفوع)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Claude Haiku من Anthropic", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
     { value: "openrouter/mistralai/mixtral-8x7b-instruct", label: "Mixtral 8x7b (مدفوع)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mixtral 8x7B من Mistral AI", color: "steel", vision: false, experimental: false, category: "OpenRouter" },
     { value: "openrouter/meta-llama/llama-3-8b-instruct", label: "Llama 3 8B (مدفوع)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Llama 3 8B من Meta", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
-    { value: "mistralai/mistral-7b-instruct:free", label: "Mistral 7B (مجاني)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mistral 7B مجاني من Mistral AI", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
-    { value: "nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free", label: "Nous Hermes (مجاني)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Nous Hermes مجاني من Nous Research", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
-    // ... existing models...
+    { value: "mistralai/mistral-7b-instruct:free", label: "Mistral 7B (مجاني)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mistral 7B مجاني من Mistral AI", color: "orange", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free", label: "Nous Hermes (مجاني)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Nous Hermes مجاني من Nous Research", color: "orange", vision: false, experimental: false, category: "OpenRouter" },
+    // Other existing models
+    { value: "scira-vision", label: "الرؤية", icon: "/dhaki_logo-removebg-preview.png", iconClass: "!text-neutral-300", description: "نموذج ذكي 2.0 للرؤية", color: "glossyblack", vision: true, experimental: false, category: "مستقر" },
+    { value: "scira-cmd-a", label: "Command A", icon: "/command-a-icon.png", iconClass: "", description: "نموذج Command A من Cohere", color: "offgray", vision: false, experimental: false, category: "مستقر" },
+    { value: "scira-mixtral", label: "Mistral Small", icon: <MistralIcon />, iconClass: "", description: "نموذج Mistral Small من Mistral AI", color: "orange", vision: false, experimental: false, category: "مستقر" },
 ];
 
 const getColorClasses = (color: string, isSelected: boolean = false) => {
