@@ -1255,7 +1255,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
                                 "px-4 py-4 pb-16",
                                 "overflow-y-auto",
                                 "touch-manipulation",
-                                "text-right",
+                                "text-right font-tajawal",
                             )}
                             style={{
                                 minHeight: `${MIN_HEIGHT}px`,
@@ -1263,6 +1263,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
                                 WebkitUserSelect: 'text',
                                 WebkitTouchCallout: 'none',
                                 direction: 'rtl',
+                                fontFamily: "var(--font-tajawal)",
                             }}
                             rows={1}
                             autoFocus={width ? width > 768 : true}

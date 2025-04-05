@@ -81,8 +81,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${GeistSans.variable} ${syne.variable} ${tajawal.variable} font-tajawal antialiased`} suppressHydrationWarning>
+    <html lang="ar" dir="rtl" className="font-tajawal" suppressHydrationWarning>
+      <body className={`${GeistSans.variable} ${syne.variable} ${tajawal.variable} font-tajawal antialiased`} style={{ fontFamily: "var(--font-tajawal)" }} suppressHydrationWarning>
         <NuqsAdapter>
           <Providers>
             <Toaster position="top-center" />
