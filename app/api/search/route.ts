@@ -38,7 +38,7 @@ const scira = customProvider({
         'openrouter/anthropic/claude-3-haiku': openRouter.languageModel('anthropic/claude-3-haiku'),
         'openrouter/mistralai/mixtral-8x7b-instruct': openRouter.languageModel('mistralai/mixtral-8x7b-instruct'),
         'openrouter/meta-llama/llama-3-8b-instruct': openRouter.languageModel('meta-llama/llama-3-8b-instruct'),
-        'openrouter/google/gemma-7b-it': openRouter.languageModel('google/gemma-7b-it'),
+        'mistralai/mistral-7b-instruct:free': openRouter.languageModel('mistralai/mistral-7b-instruct:free'),
     }
 })
 

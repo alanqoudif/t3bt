@@ -92,7 +92,7 @@ const models = [
     { value: "openrouter/anthropic/claude-3-haiku", label: "Claude Haiku", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Claude Haiku من Anthropic", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
     { value: "openrouter/mistralai/mixtral-8x7b-instruct", label: "Mixtral 8x7b", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mixtral 8x7B من Mistral AI", color: "steel", vision: false, experimental: false, category: "OpenRouter" },
     { value: "openrouter/meta-llama/llama-3-8b-instruct", label: "Llama 3 8B", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Llama 3 (8B) من Meta", color: "purple", vision: false, experimental: false, category: "OpenRouter" },
-    { value: "openrouter/google/gemma-7b-it", label: "Gemma 7B", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Gemma 7B من Google", color: "orange", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "mistralai/mistral-7b-instruct:free", label: "Mistral 7B (مجاني)", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mistral 7B المجاني", color: "orange", vision: false, experimental: false, category: "OpenRouter" },
 ];
 
 const getColorClasses = (color: string, isSelected: boolean = false) => {

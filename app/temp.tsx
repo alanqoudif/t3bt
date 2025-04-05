@@ -42,10 +42,10 @@ export default function OpenRouterTest() {
           Llama 3 8B
         </Button>
         <Button 
-          variant={selectedModel === 'openrouter/google/gemma-7b-it' ? 'default' : 'outline'}
-          onClick={() => setSelectedModel('openrouter/google/gemma-7b-it')}
+          variant={selectedModel === 'mistralai/mistral-7b-instruct:free' ? 'default' : 'outline'}
+          onClick={() => setSelectedModel('mistralai/mistral-7b-instruct:free')}
         >
-          Gemma 7B
+          Mistral 7B (مجاني)
         </Button>
       </div>
       

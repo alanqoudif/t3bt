@@ -78,7 +78,7 @@ A minimalistic AI-powered search engine that helps you find information on the i
 
 ### Deploy your own
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fzaidmukaddam%2Fscira&env=XAI_API_KEY,MISTRAL_API_KEY,COHERE_API_KEY,E2B_API_KEY,ELEVENLABS_API_KEY,TAVILY_API_KEY,EXA_API_KEY,TMDB_API_KEY,YT_ENDPOINT,FIRECRAWL_API_KEY,OPENWEATHER_API_KEY,SANDBOX_TEMPLATE_ID,GOOGLE_MAPS_API_KEY,MAPBOX_ACCESS_TOKEN,TRIPADVISOR_API_KEY,AVIATION_STACK_API_KEY,CRON_SECRET,BLOB_READ_WRITE_TOKEN,NEXT_PUBLIC_MAPBOX_TOKEN,NEXT_PUBLIC_POSTHOG_KEY,NEXT_PUBLIC_POSTHOG_HOST,NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,MEM0_API_KEY,MEM0_ORG_ID,MEM0_PROJECT_ID&envDescription=API%20keys%20and%20configuration%20required%20for%20Scira%20to%20function)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fzaidmukaddam%2Fscira&env=XAI_API_KEY,MISTRAL_API_KEY,COHERE_API_KEY,CEREBRAS_API_KEY,GROQ_API_KEY,OPENROUTER_API_KEY,E2B_API_KEY,ELEVENLABS_API_KEY,TAVILY_API_KEY,EXA_API_KEY,TMDB_API_KEY,YT_ENDPOINT,FIRECRAWL_API_KEY,OPENWEATHER_API_KEY,SANDBOX_TEMPLATE_ID,GOOGLE_MAPS_API_KEY,MAPBOX_ACCESS_TOKEN,TRIPADVISOR_API_KEY,AVIATION_STACK_API_KEY,CRON_SECRET,BLOB_READ_WRITE_TOKEN,NEXT_PUBLIC_MAPBOX_TOKEN,NEXT_PUBLIC_POSTHOG_KEY,NEXT_PUBLIC_POSTHOG_HOST,NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,MEM0_API_KEY,MEM0_ORG_ID,MEM0_PROJECT_ID&envDescription=API%20keys%20and%20configuration%20required%20for%20Scira%20to%20function)
 
 ## Set Scira as your default search engine
 
@@ -156,6 +156,35 @@ To run the application locally without Docker:
    pnpm dev
    ```
 5. Open `http://localhost:3000` in your browser
+
+## OpenRouter Integration
+
+Scira now includes integration with [OpenRouter](https://openrouter.ai), allowing you to access a variety of AI models through a single API.
+
+### Free Models Available Through OpenRouter
+
+The following models are available for free through OpenRouter:
+- [Mistral 7B Instruct](https://openrouter.ai/docs/models/mistralai/mistral-7b-instruct)
+
+### Using OpenRouter
+
+To use OpenRouter with Scira:
+
+1. Sign up for a free account at [OpenRouter](https://openrouter.ai)
+2. Generate an API key from your OpenRouter dashboard
+3. Add your API key to the `.env` file as `OPENROUTER_API_KEY`
+4. Start the application and navigate to `/test` to try the OpenRouter models
+
+OpenRouter provides a fallback option if you don't have an API key, but for production use, we recommend getting your own API key.
+
+### Setting up OpenRouter API Key
+
+In your `.env` file, add:
+```
+OPENROUTER_API_KEY=your_api_key_here
+```
+
+If you're deploying to Vercel, add this environment variable to your project settings.
 
 # License
 
