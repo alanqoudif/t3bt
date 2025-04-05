@@ -17,29 +17,34 @@ import {
     customProvider,
     generateObject,
     NoSuchToolError,
-    generateText
+    generateText,
+    LanguageModelV1
 } from 'ai';
 import Exa from 'exa-js';
 import { z } from 'zod';
 import MemoryClient from 'mem0ai';
 
+// تحديد النماذج المتاحة بناءً على متغيرات البيئة المتوفرة
+const availableModels: Record<string, LanguageModelV1> = {
+    'scira-default': xai('grok-2-1212'),
+    'scira-vision': xai('grok-2-vision-1212'),
+    'scira-cmd-a': cohere('command-a-03-2025'),
+    'scira-mistral': mistral('mistral-small-latest'),
+};
+
+// إضافة نماذج OpenRouter فقط إذا كان المفتاح متوفر
+if (serverEnv.OPENROUTER_API_KEY) {
+    availableModels['scira-openchat'] = openrouter('openrouter/openchat/openchat-3.5', {
+        apiKey: serverEnv.OPENROUTER_API_KEY as string,
+    });
+    availableModels['scira-toppy'] = openrouter('openrouter/undi95/toppy-m-7b', {
+        apiKey: serverEnv.OPENROUTER_API_KEY as string,
+    });
+}
+
 const scira = customProvider({
-    languageModels: {
-        'scira-default': xai('grok-2-1212'),
-        'scira-vision': xai('grok-2-vision-1212'),
-        'scira-cmd-a': cohere('command-a-03-2025'),
-        'scira-mistral': mistral('mistral-small-latest'),
-        // إضافة فحص لوجود مفتاح OpenRouter
-        ...(serverEnv.OPENROUTER_API_KEY ? {
-            'scira-openchat': openrouter('openrouter/openchat/openchat-3.5', {
-                apiKey: serverEnv.OPENROUTER_API_KEY,
-            }),
-            'scira-toppy': openrouter('openrouter/undi95/toppy-m-7b', {
-                apiKey: serverEnv.OPENROUTER_API_KEY,
-            }),
-        } : {}),
-    }
-})
+    languageModels: availableModels
+});
 
 interface XResult {
     id: string;
@@ -267,21 +272,16 @@ const deduplicateByDomainAndUrl = <T extends { url: string }>(items: T[]): T[] =
 // Modify the POST function to use the new handler
 export async function POST(req: Request) {
     const { messages, model, group, user_id, timezone } = await req.json();
+    const { tools: activeTools, systemPrompt, toolInstructions, responseGuidelines } = await getGroupConfig(group);
 
-    // التحقق من توفر مفتاح OpenRouter عند استخدام نماذجه
-    if ((model === 'scira-openchat' || model === 'scira-toppy') && !serverEnv.OPENROUTER_API_KEY) {
-        return new Response(
-            JSON.stringify({ 
-                error: 'OpenRouter API key is missing. Please add it to your environment variables.' 
-            }),
-            {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' }
-            }
-        );
+    // التحقق من صلاحية النموذج المختار
+    let selectedModel = model;
+    if ((selectedModel === 'scira-openchat' || selectedModel === 'scira-toppy') && !serverEnv.OPENROUTER_API_KEY) {
+        console.warn(`Model ${selectedModel} requested but OPENROUTER_API_KEY is not set. Falling back to scira-default.`);
+        selectedModel = 'scira-default';
     }
 
-    console.log("Running with model: ", model);
+    console.log("Running with model: ", selectedModel);
     console.log("Group: ", group);
     console.log("Timezone: ", timezone);
 
@@ -290,7 +290,7 @@ export async function POST(req: Request) {
         return createDataStreamResponse({
             execute: async (dataStream) => {
                 const toolsResult = streamText({
-                    model: scira.languageModel(model),
+                    model: scira.languageModel(selectedModel),
                     messages: convertToCoreMessages(messages),
                     temperature: 0,
                     experimental_activeTools: [...activeTools],
@@ -423,7 +423,7 @@ export async function POST(req: Request) {
                             }),
                             execute: async ({ text, to }: { text: string; to: string }) => {
                                 const { object: translation } = await generateObject({
-                                    model: scira.languageModel(model),
+                                    model: scira.languageModel(selectedModel),
                                     system: `You are a helpful assistant that translates text from one language to another.`,
                                     prompt: `Translate the following text to ${to} language: ${text}`,
                                     schema: z.object({
@@ -2275,7 +2275,7 @@ export async function POST(req: Request) {
                 console.log("we got here");
 
                 const response = streamText({
-                    model: scira.languageModel(model),
+                    model: scira.languageModel(selectedModel),
                     system: responseGuidelines,
                     experimental_transform: smoothStream({
                         chunking: 'word',
@@ -2304,7 +2304,7 @@ export async function POST(req: Request) {
         return createDataStreamResponse({
             execute: async (dataStream) => {
                 const result = streamText({
-                    model: scira.languageModel(model),
+                    model: scira.languageModel(selectedModel),
                     maxSteps: 5,
                     providerOptions: {
                         groq: {

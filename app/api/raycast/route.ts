@@ -6,24 +6,34 @@ import {
     convertToCoreMessages,
     tool,
     customProvider,
-    generateText
+    generateText,
+    LanguageModelV1
 } from 'ai';
 import Exa from 'exa-js';
 import { z } from 'zod';
 
-const scira = customProvider({
-    languageModels: {
-        'scira-default': xai('grok-2-1212'),
-        ...(serverEnv.OPENROUTER_API_KEY ? {
-            'scira-openchat': openrouter('openrouter/openchat/openchat-3.5', {
-                apiKey: serverEnv.OPENROUTER_API_KEY,
-            }),
-            'scira-toppy': openrouter('openrouter/undi95/toppy-m-7b', {
-                apiKey: serverEnv.OPENROUTER_API_KEY,
-            }),
-        } : {}),
+// تحديد النماذج المتاحة بناءً على متغيرات البيئة المتوفرة
+const availableModels: Record<string, LanguageModelV1> = {
+    'scira-default': xai('grok-2-1212'),
+};
+
+// إضافة نماذج OpenRouter فقط إذا كان المفتاح متوفر
+if (serverEnv.OPENROUTER_API_KEY) {
+    try {
+        availableModels['scira-openchat'] = openrouter('openrouter/openchat/openchat-3.5', {
+            apiKey: serverEnv.OPENROUTER_API_KEY as string,
+        });
+        availableModels['scira-toppy'] = openrouter('openrouter/undi95/toppy-m-7b', {
+            apiKey: serverEnv.OPENROUTER_API_KEY as string,
+        });
+    } catch (error) {
+        console.error("Error initializing OpenRouter models:", error);
     }
-})
+}
+
+const scira = customProvider({
+    languageModels: availableModels
+});
 
 export const maxDuration = 300;
 
@@ -114,19 +124,20 @@ Remember, you are designed to be efficient and helpful in the Raycast environmen
 export async function POST(req: Request) {
     const { messages, model, group = 'web' } = await req.json();
 
-    if ((model === 'scira-openchat' || model === 'scira-toppy') && !serverEnv.OPENROUTER_API_KEY) {
-        return new Response(
-            JSON.stringify({ 
-                error: 'OpenRouter API key is missing. Please add it to your environment variables.' 
-            }),
-            {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' }
-            }
-        );
+    // التحقق من صلاحية النموذج المختار
+    let selectedModel = model;
+    if ((selectedModel === 'scira-openchat' || selectedModel === 'scira-toppy') && !serverEnv.OPENROUTER_API_KEY) {
+        console.warn(`Model ${selectedModel} requested but OPENROUTER_API_KEY is not set. Falling back to scira-default.`);
+        selectedModel = 'scira-default';
     }
 
-    console.log("Running with model: ", model.trim());
+    // التأكد من وجود النموذج المطلوب في القائمة
+    if (!availableModels[selectedModel]) {
+        console.warn(`Model ${selectedModel} is not available. Falling back to scira-default.`);
+        selectedModel = 'scira-default';
+    }
+
+    console.log("Running with model: ", selectedModel);
     console.log("Group: ", group);
 
     // Get the appropriate system prompt based on the group
@@ -136,7 +147,7 @@ export async function POST(req: Request) {
     const activeTools = group === 'x' ? ["x_search" as const] : group === 'web' ? ["web_search" as const] : ["web_search" as const, "x_search" as const];
 
     const { text, steps } = await generateText({
-        model: scira.languageModel(model),
+        model: scira.languageModel(selectedModel),
         system: systemPrompt,
         maxSteps: 5,
         messages: convertToCoreMessages(messages),
