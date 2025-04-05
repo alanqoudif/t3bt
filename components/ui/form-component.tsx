@@ -1152,7 +1152,11 @@ const FormComponent: React.FC<FormComponentProps> = ({
     const isMobile = width ? width < 768 : false;
 
     return (
-        <div className="flex flex-col w-full">
+        <div 
+            className={`search-container relative mb-8 ${
+                attachments.length > 0 ? 'pb-8' : ''
+            }`}
+        >
             <div
                 className={cn(
                     "relative w-full flex flex-col gap-1 rounded-lg transition-all duration-300 !font-sans",

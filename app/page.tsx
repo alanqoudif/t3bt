@@ -6,6 +6,7 @@ import { BorderTrail } from '@/components/core/border-trail';
 import { TextShimmer } from '@/components/core/text-shimmer';
 import { FlightTracker } from '@/components/flight-tracker';
 import { InstallPrompt } from '@/components/InstallPrompt';
+import SiteTour from '@/components/SiteTour';
 import InteractiveChart from '@/components/interactive-charts';
 import { MapComponent, MapContainer } from '@/components/map-components';
 import TMDBResult from '@/components/movie-info';
@@ -738,7 +739,7 @@ const HomeContent = () => {
                 variant="ghost"
                 size="icon"
                 onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-                className="bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800"
+                className="theme-toggle bg-transparent hover:bg-neutral-100 dark:hover:bg-neutral-800"
             >
                 <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
                 <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
@@ -1278,17 +1279,16 @@ const HomeContent = () => {
 
     const AboutButton = () => {
         return (
-            <Link href="/about">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    className="rounded-full w-8 h-8 bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-all"
-                >
-                    <Info className="h-5 w-5 text-neutral-600 dark:text-neutral-400" />
-                </Button>
+            <Link
+                href="/about"
+                className="about-button flex items-center gap-1 rounded-lg bg-white dark:bg-neutral-900 px-3 py-1.5 text-neutral-600 dark:text-neutral-400 text-sm hover:bg-neutral-100 dark:hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-100 dark:focus:ring-neutral-800"
+                prefetch={false}
+            >
+                <Info className="h-3.5 w-3.5" />
+                <span>حول ذكي</span>
             </Link>
-        );
-    };
+        )
+    }
 
     interface NavbarProps { }
 
@@ -1729,7 +1729,7 @@ const HomeContent = () => {
                         </div>
                     )}
 
-                    <div className="space-y-4 sm:space-y-6 mb-32">
+                    <div className="space-y-4 sm:space-y-6 mb-32 chat-container">
                         {memoizedMessages.map((message, index) => (
                             <div key={index} className={`${
                                 // Add border only if this is an assistant message AND there's a next message
@@ -1864,7 +1864,7 @@ const HomeContent = () => {
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: 20 }}
                                                 transition={{ duration: 0.5 }}
-                                                className="w-full max-w-xl sm:max-w-2xl mt-6"
+                                                className="search-history w-full max-w-xl sm:max-w-2xl mt-6"
                                             >
                                                 <div className="flex items-center gap-2 mb-4">
                                                     <AlignLeft className="w-5 h-5 text-primary" />
@@ -3230,13 +3230,12 @@ const AttachmentsBadge = ({ attachments }: { attachments: any[] }) => {
     );
 };
 
-const Home = () => {
-    return (
-        <Suspense fallback={<LoadingFallback />}>
-            <HomeContent />
-            <InstallPrompt />
-        </Suspense>
-    );
-};
-
-export default Home;
+// Page component
+export default function Home() {
+  return (
+    <>
+      <SiteTour />
+      <HomeContent />
+    </>
+  );
+}
