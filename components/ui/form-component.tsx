@@ -74,8 +74,25 @@ const MistralIcon = ({ className }: { className?: string }) => (
     </svg>
 );
 
+const OpenRouterIcon = ({ className }: { className?: string }) => (
+    <svg width="16" height="16" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
+        <path d="M23.4 18.99L21.7 11.3C21.7 11.2 21.6 11.2 21.6 11.1L21.5 11L20.8 10.5L20.1 10L19.7 9.9H19.3L18.5 10.1L17.99 10.6L17.8 11C17.8 11.1 17.7 11.2 17.7 11.3L16 18.99L12.5 16.7C12.4 16.7 12.3 16.6 12.2 16.6L12 16.5L11.2 16.4L10.4 16.7L9.9 17.2L9.6 17.8L9.5 18.6L9.8 19.4L10.1 19.7L10.2 19.8L15.3 23.1L10.2 26.3L10 26.5L9.7 26.9L9.5 27.7L9.7 28.5L10.1 29L10.7 29.3L11.5 29.4L12.3 29.1C12.4 29.1 12.5 29 12.6 29L16 26.7L17.7 34.4C17.7 34.5 17.8 34.6 17.8 34.7L18 35.1L18.7 35.6L19.5 35.8H20.3L21.1 35.6L21.6 35.1L21.9 34.5C21.9 34.4 22 34.3 22 34.2L23.7 26.5L27.2 28.8C27.3 28.8 27.4 28.9 27.5 28.9L28.3 29.2L29.1 29.1L29.7 28.8L30.1 28.3L30.3 27.5L30.2 26.7C30.2 26.6 30.1 26.5 30 26.4C30 26.3 29.9 26.3 29.8 26.2L24.7 22.9L29.8 19.6C29.9 19.6 30 19.5 30.1 19.4L30.4 19L30.6 18.2L30.4 17.4L30 16.9L29.4 16.6L28.6 16.5L27.8 16.8C27.7 16.8 27.6 16.9 27.5 16.9L23.4 18.99Z" fill="url(#paint0_linear_3_161)"/>
+        <defs>
+            <linearGradient id="paint0_linear_3_161" x1="9.5" y1="9.89999" x2="30.6" y2="35.8" gradientUnits="userSpaceOnUse">
+                <stop stop-color="#0072FF"/>
+                <stop offset="1" stop-color="#00C6FF"/>
+            </linearGradient>
+        </defs>
+    </svg>
+);
+
 const models = [
     { value: "scira-default", label: "ذكي 2.0", icon: "/dhaki_logo-removebg-preview.png", iconClass: "!text-neutral-300", description: "نموذج ذكي 2.0", color: "glossyblack", vision: false, experimental: false, category: "مستقر" },
+    // OpenRouter models
+    { value: "openrouter/anthropic/claude-3-haiku", label: "Claude Haiku", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Claude Haiku من Anthropic", color: "sapphire", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "openrouter/mistralai/mixtral-8x7b-instruct", label: "Mixtral 8x7b", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Mixtral 8x7B من Mistral AI", color: "steel", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "openrouter/meta-llama/llama-3-8b-instruct", label: "Llama 3 8B", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Llama 3 (8B) من Meta", color: "purple", vision: false, experimental: false, category: "OpenRouter" },
+    { value: "openrouter/google/gemma-7b-it", label: "Gemma 7B", icon: <OpenRouterIcon />, iconClass: "", description: "نموذج Gemma 7B من Google", color: "orange", vision: false, experimental: false, category: "OpenRouter" },
 ];
 
 const getColorClasses = (color: string, isSelected: boolean = false) => {

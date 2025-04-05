@@ -55,6 +55,11 @@ A minimalistic AI-powered search engine that helps you find information on the i
 - [Anthropic's Claude 3.5 Sonnet](https://www.anthropic.com/news/claude-3-5-sonnet)
 - [Meta's Llama 3.3 70B by Cerebras](https://inference-docs.cerebras.ai/introduction)
 - [Deepseek R1 Distill by Groq Inc](https://console.groq.com/docs/model/deepseek-r1-distill-llama-70b)
+- [OpenRouter Models](https://openrouter.ai)
+  - [Anthropic Claude 3 Haiku](https://openrouter.ai/models/anthropic/claude-3-haiku)
+  - [MistralAI Mixtral 8x7B](https://openrouter.ai/models/mistralai/mixtral-8x7b-instruct)
+  - [Meta Llama 3 8B](https://openrouter.ai/models/meta-llama/llama-3-8b-instruct)
+  - [Google Gemma 7B](https://openrouter.ai/models/google/gemma-7b-it)
 
 ## Built with
 - [Next.js](https://nextjs.org/)
@@ -69,6 +74,7 @@ A minimalistic AI-powered search engine that helps you find information on the i
 - [Mapbox](https://www.mapbox.com/)
 - [TripAdvisor](https://www.tripadvisor.com/)
 - [AviationStack](https://aviationstack.com/)
+- [OpenRouter](https://openrouter.ai)
 
 ### Deploy your own
 
