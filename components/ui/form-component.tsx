@@ -164,23 +164,14 @@ const ModelSwitcher: React.FC<ModelSwitcherProps> = ({ selectedModel, setSelecte
                 disabled={isProcessing}
             >
                 {selectedModelData && (
-                    typeof selectedModelData.icon === 'string' ? (
-                        <img
-                            src={selectedModelData.icon}
-                            alt={selectedModelData.label}
-                            className={cn(
-                                "w-3.5 h-3.5 object-contain",
-                                selectedModelData.iconClass
-                            )}
-                        />
-                    ) : (
-                        <selectedModelData.icon
-                            className={cn(
-                                "w-3.5 h-3.5",
-                                selectedModelData.iconClass
-                            )}
-                        />
-                    )
+                    <img
+                        src={selectedModelData.icon as string}
+                        alt={selectedModelData.label}
+                        className={cn(
+                            "w-3.5 h-3.5 object-contain",
+                            selectedModelData.iconClass
+                        )}
+                    />
                 )}
                 <span className="hidden sm:block text-xs font-medium overflow-hidden">
                     <TextMorph
@@ -240,23 +231,14 @@ const ModelSwitcher: React.FC<ModelSwitcherProps> = ({ selectedModel, setSelecte
                                             : "bg-black/5 dark:bg-white/5",
                                         "group-hover:bg-black/10 dark:group-hover:bg-white/10"
                                     )}>
-                                        {typeof model.icon === 'string' ? (
-                                            <img
-                                                src={model.icon}
-                                                alt={model.label}
-                                                className={cn(
-                                                    "w-3 h-3 object-contain",
-                                                    model.iconClass
-                                                )}
-                                            />
-                                        ) : (
-                                            <model.icon
-                                                className={cn(
-                                                    "w-3 h-3",
-                                                    model.iconClass
-                                                )}
-                                            />
-                                        )}
+                                        <img
+                                            src={model.icon as string}
+                                            alt={model.label}
+                                            className={cn(
+                                                "w-3 h-3 object-contain",
+                                                model.iconClass
+                                            )}
+                                        />
                                     </div>
                                     <div className="flex flex-col gap-px min-w-0">
                                         <div className="font-medium truncate">{model.label}</div>
@@ -1350,9 +1332,7 @@ const FormComponent: React.FC<FormComponentProps> = ({
                                                 isVisionModel
                                                     ? 'تم تفعيل نموذج الصور - يمكنك الآن إرفاق الصور'
                                                     : model.description,
-                                                typeof model.icon === 'string' ?
-                                                    <img src={model.icon} alt={model.label} className="size-4 object-contain" /> :
-                                                    <model.icon className="size-4" />,
+                                                <img src={model.icon as string} alt={model.label} className="size-4 object-contain" />,
                                                 model.color,
                                                 'model'  // Specify this is a model notification
                                             );
