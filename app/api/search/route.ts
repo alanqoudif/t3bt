@@ -4,7 +4,6 @@ import { serverEnv } from '@/env/server';
 import { xai } from '@ai-sdk/xai';
 import { cohere } from '@ai-sdk/cohere'
 import { mistral } from "@ai-sdk/mistral";
-import { createOpenRouter } from "@openrouter/ai-sdk-provider";
 import CodeInterpreter from '@e2b/code-interpreter';
 import FirecrawlApp from '@mendable/firecrawl-js';
 import { tavily } from '@tavily/core';
@@ -23,23 +22,12 @@ import Exa from 'exa-js';
 import { z } from 'zod';
 import MemoryClient from 'mem0ai';
 
-// Create the OpenRouter provider with API key
-const openRouter = createOpenRouter({
-    apiKey: serverEnv.OPENROUTER_API_KEY || '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'
-});
-
 const scira = customProvider({
     languageModels: {
         'scira-default': xai('grok-2-1212'),
         'scira-vision': xai('grok-2-vision-1212'),
         'scira-cmd-a': cohere('command-a-03-2025'),
         'scira-mistral': mistral('mistral-small-latest'),
-        // OpenRouter models
-        'openrouter/anthropic/claude-3-haiku': openRouter.languageModel('anthropic/claude-3-haiku'),
-        'openrouter/mistralai/mixtral-8x7b-instruct': openRouter.languageModel('mistralai/mixtral-8x7b-instruct'),
-        'openrouter/meta-llama/llama-3-8b-instruct': openRouter.languageModel('meta-llama/llama-3-8b-instruct'),
-        'mistralai/mistral-7b-instruct:free': openRouter.languageModel('mistralai/mistral-7b-instruct:free'),
-        'nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free': openRouter.languageModel('nousresearch/nous-hermes-2-mixtral-8x7b-dpo:free'),
     }
 })
 

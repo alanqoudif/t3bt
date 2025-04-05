@@ -10,11 +10,11 @@ import "./globals.css";
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://dhakii.com"),
+  metadataBase: new URL("https://scira.ai"),
   title: "ذكي",
   description: "ذكي - محرك بحث ذكي مدعوم بالذكاء الاصطناعي يساعدك على إيجاد المعلومات على الإنترنت.",
   openGraph: {
-    url: "https://dhakii.com",
+    url: "https://scira.ai",
     siteName: "ذكي",
   },
   keywords: [
