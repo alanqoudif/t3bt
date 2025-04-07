@@ -120,7 +120,7 @@ const groupTools = {
   x: ['x_search', 'datetime'] as const,
   analysis: ['code_interpreter', 'stock_chart', 'currency_converter', 'datetime'] as const,
   chat: [] as const,
-  extreme: ['reason_search'] as const,
+  extreme: ['reason_search', 'web_search', 'academic_search', 'x_search', 'datetime'] as const,
 } as const;
 
 // Separate tool instructions and response guidelines for each group
@@ -272,13 +272,45 @@ const groupToolInstructions = {
   extreme: `
   Today's Date: ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "2-digit", weekday: "short" })}
 
-  ### Reason Search Tool:
-  - Your primary tool is reason_search, which allows for:
-    - Multi-step research planning
-    - Parallel web and academic searches
-    - Deep analysis of findings
-    - Cross-referencing and validation
-  - You MUST run the tool first and then write the response with citations!
+  ### Available Tools:
+  1. reason_search: Your primary research tool for deep analysis
+  2. web_search: For current information and general web content
+  3. academic_search: For scholarly articles and research papers
+  4. x_search: For social media insights and current discussions
+  5. datetime: For temporal context when needed
+
+  ### Tool Usage Guidelines:
+  - ALWAYS start with reason_search to get comprehensive results
+  - Use web_search for current events and general information
+  - Use academic_search for scholarly validation
+  - Use x_search for public opinion and real-time discussions
+  - Combine insights from all tools to provide a complete analysis
+  
+  IMPORTANT: 
+  - You MUST run at least one tool before composing your response
+  - Always provide citations for your sources
+  - Respond in the same language as the user (Arabic/English)
+  - Focus on deep analysis and comprehensive understanding
+  
+  ### Response Structure:
+  1. Introduction (context and importance)
+  2. Methodology (how you approached the research)
+  3. Findings (detailed analysis with citations)
+  4. Discussion (synthesis of information)
+  5. Conclusion (key takeaways)
+  
+  ### Citation Rules:
+  - Format: [Source Title](URL)
+  - Place citations immediately after referenced information
+  - Use multiple sources to validate claims
+  - Include both academic and current sources
+  
+  ### Formatting:
+  - Use markdown for structure (h2, h3 only)
+  - Write in clear, detailed paragraphs
+  - Use tables for comparing data
+  - Support claims with evidence
+  - Include analysis of limitations
   
   IMPORTANT: Respond in the same language as the user. If the user communicates in Arabic, respond in Arabic. If the user communicates in English, respond in English.`,
 } as const;
