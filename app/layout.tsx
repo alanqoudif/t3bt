@@ -10,17 +10,17 @@ import "./globals.css";
 import { Providers } from './providers';
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://scira.ai"),
+  metadataBase: new URL("https://dhakii.com"),
   title: "ذكي",
   description: "ذكي - محرك بحث ذكي مدعوم بالذكاء الاصطناعي يساعدك على إيجاد المعلومات على الإنترنت.",
   openGraph: {
-    url: "https://scira.ai",
+    url: "https://dhakii.com",
     siteName: "ذكي",
     title: "ذكي",
     description: "ذكي - محرك بحث ذكي مدعوم بالذكاء الاصطناعي يساعدك على إيجاد المعلومات على الإنترنت.",
     images: [
       {
-        url: "/noqta.png",
+        url: "https://dhakii.com/noqta.png",
         width: 1200,
         height: 630,
         alt: "ذكي - محرك بحث ذكي"
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ذكي",
     description: "ذكي - محرك بحث ذكي مدعوم بالذكاء الاصطناعي يساعدك على إيجاد المعلومات على الإنترنت.",
-    images: ["/noqta.png"]
+    images: ["https://dhakii.com/noqta.png"]
   },
   keywords: [
     "ذكي",
