@@ -16,6 +16,22 @@ export const metadata: Metadata = {
   openGraph: {
     url: "https://scira.ai",
     siteName: "ذكي",
+    title: "ذكي",
+    description: "ذكي - محرك بحث ذكي مدعوم بالذكاء الاصطناعي يساعدك على إيجاد المعلومات على الإنترنت.",
+    images: [
+      {
+        url: "/noqta.png",
+        width: 1200,
+        height: 630,
+        alt: "ذكي - محرك بحث ذكي"
+      }
+    ]
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "ذكي",
+    description: "ذكي - محرك بحث ذكي مدعوم بالذكاء الاصطناعي يساعدك على إيجاد المعلومات على الإنترنت.",
+    images: ["/noqta.png"]
   },
   keywords: [
     "ذكي",

@@ -263,6 +263,42 @@ export async function POST(req: Request) {
     console.log("Group: ", group);
     console.log("Timezone: ", timezone);
 
+    // Add API usage logging
+    console.log("API Keys Status:");
+    console.log("- TAVILY_API_KEY:", serverEnv.TAVILY_API_KEY ? "Present" : "Missing");
+    console.log("- EXA_API_KEY:", serverEnv.EXA_API_KEY ? "Present" : "Missing");
+    console.log("- XAI_API_KEY:", serverEnv.XAI_API_KEY ? "Present" : "Missing");
+
+    // Validate required API keys
+    if (!serverEnv.TAVILY_API_KEY || !serverEnv.EXA_API_KEY || !serverEnv.XAI_API_KEY) {
+        console.error("Missing required API keys");
+        return new Response(JSON.stringify({
+            error: "Configuration error: Missing required API keys",
+            details: {
+                tavily: !serverEnv.TAVILY_API_KEY ? "missing" : "present",
+                exa: !serverEnv.EXA_API_KEY ? "missing" : "present",
+                xai: !serverEnv.XAI_API_KEY ? "missing" : "present"
+            }
+        }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
+
+    // Track API usage
+    let apiUsage = {
+        tavily: 0,
+        exa: 0,
+        xai: 0
+    };
+
+    // Add rate limit tracking
+    let rateLimitInfo = {
+        tavily: { remaining: null, reset: null },
+        exa: { remaining: null, reset: null },
+        xai: { remaining: null, reset: null }
+    };
+
     if (group !== 'chat' && group !== 'buddy') {
         console.log("Running inside part 1");
         return createDataStreamResponse({
@@ -1631,76 +1667,163 @@ export async function POST(req: Request) {
                                     });
 
                                     if (step.type === 'web') {
-                                        const webResults = await tvly.search(step.query.query, {
-                                            searchDepth: depth,
-                                            includeAnswer: true,
-                                            maxResults: Math.min(6 - step.query.priority, 10)
-                                        });
-
-                                        searchResults.push({
-                                            type: 'web',
-                                            query: step.query,
-                                            results: webResults.results.map(r => ({
-                                                source: 'web',
-                                                title: r.title,
-                                                url: r.url,
-                                                content: r.content
-                                            }))
-                                        });
-                                        completedSteps++;
+                                        try {
+                                            console.log('Attempting Tavily search with key:', serverEnv.TAVILY_API_KEY?.substring(0, 10) + '...');
+                                            const webResults = await tvly.search(step.query.query, {
+                                                searchDepth: depth,
+                                                includeAnswer: true,
+                                                maxResults: Math.min(6 - step.query.priority, 10)
+                                            });
+                                            console.log('Tavily search successful:', {
+                                                resultsCount: webResults.results.length
+                                            });
+                                            
+                                            searchResults.push({
+                                                type: 'web',
+                                                query: step.query,
+                                                results: webResults.results.map(r => ({
+                                                    source: 'web',
+                                                    title: r.title,
+                                                    url: r.url,
+                                                    content: r.content
+                                                }))
+                                            });
+                                        } catch (error: any) {
+                                            console.error('Tavily API error details:', {
+                                                message: error?.message || 'Unknown error',
+                                                status: error?.response?.status,
+                                                data: error?.response?.data
+                                            });
+                                            dataStream.writeMessageAnnotation({
+                                                type: 'research_update',
+                                                data: {
+                                                    id: step.id,
+                                                    type: step.type,
+                                                    status: 'error',
+                                                    title: `Error in web search`,
+                                                    message: 'An error occurred while searching. Please try again later.',
+                                                    error: error?.message || 'Unknown error',
+                                                    timestamp: Date.now()
+                                                }
+                                            });
+                                            continue;
+                                        }
                                     } else if (step.type === 'academic') {
-                                        const academicResults = await exa.searchAndContents(step.query.query, {
-                                            type: 'auto',
-                                            numResults: Math.min(6 - step.query.priority, 5),
-                                            category: 'research paper',
-                                            summary: true
-                                        });
-
-                                        searchResults.push({
-                                            type: 'academic',
-                                            query: step.query,
-                                            results: academicResults.results.map(r => ({
-                                                source: 'academic',
-                                                title: r.title || '',
-                                                url: r.url || '',
-                                                content: r.summary || ''
-                                            }))
-                                        });
-                                        completedSteps++;
+                                        try {
+                                            console.log('Attempting Exa academic search with key:', serverEnv.EXA_API_KEY?.substring(0, 10) + '...');
+                                            const academicResults = await exa.searchAndContents(step.query.query, {
+                                                type: 'auto',
+                                                numResults: Math.min(6 - step.query.priority, 5),
+                                                category: 'research paper',
+                                                summary: true
+                                            });
+                                            console.log('Exa academic search successful:', {
+                                                resultsCount: academicResults.results.length
+                                            });
+                                            
+                                            searchResults.push({
+                                                type: 'academic',
+                                                query: step.query,
+                                                results: academicResults.results.map(r => ({
+                                                    source: 'academic',
+                                                    title: r.title || '',
+                                                    url: r.url || '',
+                                                    content: r.summary || ''
+                                                }))
+                                            });
+                                        } catch (error: any) {
+                                            console.error('Exa API error details:', {
+                                                message: error?.message || 'Unknown error',
+                                                status: error?.response?.status,
+                                                data: error?.response?.data
+                                            });
+                                            dataStream.writeMessageAnnotation({
+                                                type: 'research_update',
+                                                data: {
+                                                    id: step.id,
+                                                    type: step.type,
+                                                    status: 'error',
+                                                    title: `Error in academic search`,
+                                                    message: 'An error occurred while searching academic sources. Please try again later.',
+                                                    error: error?.message || 'Unknown error',
+                                                    timestamp: Date.now()
+                                                }
+                                            });
+                                            continue;
+                                        }
                                     } else if (step.type === 'x') {
-                                        // Extract tweet ID from URL
-                                        const extractTweetId = (url: string): string | null => {
-                                            const match = url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
-                                            return match ? match[1] : null;
-                                        };
+                                        try {
+                                            // Validate API key
+                                            if (!serverEnv.EXA_API_KEY) {
+                                                console.error('Missing EXA API key');
+                                                throw new Error('Configuration error: Missing EXA API key');
+                                            }
 
-                                        const xResults = await exa.searchAndContents(step.query.query, {
-                                            type: 'neural',
-                                            useAutoprompt: true,
-                                            numResults: step.query.priority,
-                                            text: true,
-                                            highlights: true,
-                                            includeDomains: ['twitter.com', 'x.com']
-                                        });
-
-                                        // Process tweets to include tweet IDs
-                                        const processedTweets = xResults.results.map(result => {
-                                            const tweetId = extractTweetId(result.url);
-                                            return {
-                                                source: 'x' as const,
-                                                title: result.title || result.author || 'Tweet',
-                                                url: result.url,
-                                                content: result.text || '',
-                                                tweetId: tweetId || undefined
+                                            // Extract tweet ID from URL
+                                            const extractTweetId = (url: string): string | null => {
+                                                const match = url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
+                                                return match ? match[1] : null;
                                             };
-                                        }).filter(tweet => tweet.tweetId); // Only include tweets with valid IDs
 
-                                        searchResults.push({
-                                            type: 'x',
-                                            query: step.query,
-                                            results: processedTweets
-                                        });
-                                        completedSteps++;
+                                            const xResults = await exa.searchAndContents(step.query.query, {
+                                                type: 'neural',
+                                                useAutoprompt: true,
+                                                numResults: step.query.priority,
+                                                text: true,
+                                                highlights: true,
+                                                includeDomains: ['twitter.com', 'x.com']
+                                            });
+
+                                            // Process tweets to include tweet IDs
+                                            const processedTweets = xResults.results.map(result => {
+                                                const tweetId = extractTweetId(result.url);
+                                                return {
+                                                    source: 'x' as const,
+                                                    title: result.title || result.author || 'Tweet',
+                                                    url: result.url,
+                                                    content: result.text || '',
+                                                    tweetId: tweetId || undefined
+                                                };
+                                            }).filter(tweet => tweet.tweetId); // Only include tweets with valid IDs
+
+                                            searchResults.push({
+                                                type: 'x',
+                                                query: step.query,
+                                                results: processedTweets
+                                            });
+                                            completedSteps++;
+
+                                            // Send completed annotation for the search step
+                                            dataStream.writeMessageAnnotation({
+                                                type: 'research_update',
+                                                data: {
+                                                    id: step.id,
+                                                    type: step.type,
+                                                    status: 'completed',
+                                                    title: `Searched X/Twitter for "${step.query.query}"`,
+                                                    query: step.query.query,
+                                                    results: processedTweets,
+                                                    message: `Found ${processedTweets.length} results`,
+                                                    timestamp: Date.now(),
+                                                    overwrite: true
+                                                }
+                                            });
+                                        } catch (error) {
+                                            console.error('X/Twitter search API error:', error);
+                                            dataStream.writeMessageAnnotation({
+                                                type: 'research_update',
+                                                data: {
+                                                    id: step.id,
+                                                    type: step.type,
+                                                    status: 'error',
+                                                    title: `Error in X/Twitter search`,
+                                                    message: 'An error occurred while searching X/Twitter. Please try again later.',
+                                                    error: error instanceof Error ? error.message : 'Unknown error',
+                                                    timestamp: Date.now()
+                                                }
+                                            });
+                                            continue; // Skip to next step instead of failing completely
+                                        }
                                     }
 
                                     // Send completed annotation for the search step
