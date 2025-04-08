@@ -1633,11 +1633,19 @@ export async function POST(req: Request) {
                                         type: 'plan',
                                         status: 'completed',
                                         title: 'Research Plan',
-                                        plan: researchPlan,
+                                        queries: researchPlan.search_queries.map(q => ({
+                                            query: q.query,
+                                            source: q.source,
+                                            priority: q.priority
+                                        })),
+                                        analyses: researchPlan.required_analyses.map(a => ({
+                                            type: a.type,
+                                            description: a.description,
+                                            importance: a.importance
+                                        })),
                                         totalSteps: totalSteps,
                                         message: 'Research plan created',
-                                        timestamp: Date.now(),
-                                        overwrite: true
+                                        timestamp: Date.now()
                                     }
                                 });
 
@@ -1683,10 +1691,25 @@ export async function POST(req: Request) {
                                                 query: step.query,
                                                 results: webResults.results.map(r => ({
                                                     source: 'web',
-                                                    title: r.title,
-                                                    url: r.url,
-                                                    content: r.content
+                                                    title: r.title || '',
+                                                    url: r.url || '',
+                                                    content: r.content || ''
                                                 }))
+                                            });
+
+                                            // Update annotation with simplified structure
+                                            dataStream.writeMessageAnnotation({
+                                                type: 'research_update',
+                                                data: {
+                                                    id: step.id,
+                                                    type: step.type,
+                                                    status: 'completed',
+                                                    title: `Web Search Results`,
+                                                    query: step.query.query,
+                                                    resultsCount: webResults.results.length,
+                                                    message: `Found ${webResults.results.length} results`,
+                                                    timestamp: Date.now()
+                                                }
                                             });
                                         } catch (error: any) {
                                             console.error('Tavily API error details:', {
@@ -1710,26 +1733,50 @@ export async function POST(req: Request) {
                                         }
                                     } else if (step.type === 'academic') {
                                         try {
-                                            console.log('Attempting Exa academic search with key:', serverEnv.EXA_API_KEY?.substring(0, 10) + '...');
                                             const academicResults = await exa.searchAndContents(step.query.query, {
-                                                type: 'auto',
-                                                numResults: Math.min(6 - step.query.priority, 5),
-                                                category: 'research paper',
-                                                summary: true
+                                                type: 'keyword',
+                                                numResults: Math.min(6 - step.query.priority, 10),
+                                                text: true,
+                                                highlights: true,
+                                                includeDomains: [
+                                                    'arxiv.org',
+                                                    'scholar.google.com',
+                                                    'researchgate.net',
+                                                    'academia.edu',
+                                                    'sciencedirect.com',
+                                                    'springer.com',
+                                                    'nature.com',
+                                                    'science.org',
+                                                    'ieee.org'
+                                                ]
                                             });
-                                            console.log('Exa academic search successful:', {
-                                                resultsCount: academicResults.results.length
-                                            });
-                                            
+
+                                            const processedResults = academicResults.results.map(paper => ({
+                                                source: 'academic',
+                                                title: paper.title || '',
+                                                url: paper.url || '',
+                                                content: paper.text || ''
+                                            }));
+
                                             searchResults.push({
                                                 type: 'academic',
                                                 query: step.query,
-                                                results: academicResults.results.map(r => ({
-                                                    source: 'academic',
-                                                    title: r.title || '',
-                                                    url: r.url || '',
-                                                    content: r.summary || ''
-                                                }))
+                                                results: processedResults
+                                            });
+
+                                            // Update annotation with simplified structure
+                                            dataStream.writeMessageAnnotation({
+                                                type: 'research_update',
+                                                data: {
+                                                    id: step.id,
+                                                    type: step.type,
+                                                    status: 'completed',
+                                                    title: `Academic Search Results`,
+                                                    query: step.query.query,
+                                                    resultsCount: processedResults.length,
+                                                    message: `Found ${processedResults.length} results`,
+                                                    timestamp: Date.now()
+                                                }
                                             });
                                         } catch (error: any) {
                                             console.error('Exa API error details:', {
@@ -1753,59 +1800,51 @@ export async function POST(req: Request) {
                                         }
                                     } else if (step.type === 'x') {
                                         try {
-                                            // Validate API key
-                                            if (!serverEnv.EXA_API_KEY) {
-                                                console.error('Missing EXA API key');
-                                                throw new Error('Configuration error: Missing EXA API key');
-                                            }
-
-                                            // Extract tweet ID from URL
-                                            const extractTweetId = (url: string): string | null => {
-                                                const match = url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
-                                                return match ? match[1] : null;
-                                            };
-
                                             const xResults = await exa.searchAndContents(step.query.query, {
-                                                type: 'neural',
-                                                useAutoprompt: true,
-                                                numResults: step.query.priority,
+                                                type: 'keyword',
+                                                numResults: Math.min(6 - step.query.priority, 10),
                                                 text: true,
                                                 highlights: true,
                                                 includeDomains: ['twitter.com', 'x.com']
                                             });
 
-                                            // Process tweets to include tweet IDs
-                                            const processedTweets = xResults.results.map(result => {
-                                                const tweetId = extractTweetId(result.url);
-                                                return {
-                                                    source: 'x' as const,
-                                                    title: result.title || result.author || 'Tweet',
-                                                    url: result.url,
-                                                    content: result.text || '',
-                                                    tweetId: tweetId || undefined
-                                                };
-                                            }).filter(tweet => tweet.tweetId); // Only include tweets with valid IDs
+                                            const extractTweetId = (url: string): string | null => {
+                                                const match = url.match(/(?:twitter\.com|x\.com)\/\w+\/status\/(\d+)/);
+                                                return match ? match[1] : null;
+                                            };
+
+                                            const processedResults = xResults.results.reduce<Array<any>>((acc, post) => {
+                                                const tweetId = extractTweetId(post.url);
+                                                if (tweetId) {
+                                                    acc.push({
+                                                        source: 'x',
+                                                        title: post.title || '',
+                                                        url: post.url || '',
+                                                        content: post.text || '',
+                                                        tweetId: tweetId
+                                                    });
+                                                }
+                                                return acc;
+                                            }, []);
 
                                             searchResults.push({
                                                 type: 'x',
                                                 query: step.query,
-                                                results: processedTweets
+                                                results: processedResults
                                             });
-                                            completedSteps++;
 
-                                            // Send completed annotation for the search step
+                                            // Update annotation with simplified structure
                                             dataStream.writeMessageAnnotation({
                                                 type: 'research_update',
                                                 data: {
                                                     id: step.id,
                                                     type: step.type,
                                                     status: 'completed',
-                                                    title: `Searched X/Twitter for "${step.query.query}"`,
+                                                    title: `X/Twitter Search Results`,
                                                     query: step.query.query,
-                                                    results: processedTweets,
-                                                    message: `Found ${processedTweets.length} results`,
-                                                    timestamp: Date.now(),
-                                                    overwrite: true
+                                                    resultsCount: processedResults.length,
+                                                    message: `Found ${processedResults.length} results`,
+                                                    timestamp: Date.now()
                                                 }
                                             });
                                         } catch (error) {
@@ -2043,9 +2082,9 @@ export async function POST(req: Request) {
                                                 },
                                                 results: webResults.results.map(r => ({
                                                     source: 'web',
-                                                    title: r.title,
-                                                    url: r.url,
-                                                    content: r.content
+                                                    title: r.title || '',
+                                                    url: r.url || '',
+                                                    content: r.content || ''
                                                 }))
                                             });
 
@@ -2060,9 +2099,9 @@ export async function POST(req: Request) {
                                                     query: query.query,
                                                     results: webResults.results.map(r => ({
                                                         source: 'web',
-                                                        title: r.title,
-                                                        url: r.url,
-                                                        content: r.content
+                                                        title: r.title || '',
+                                                        url: r.url || '',
+                                                        content: r.content || ''
                                                     })),
                                                     message: `Found ${webResults.results.length} results`,
                                                     timestamp: Date.now(),
